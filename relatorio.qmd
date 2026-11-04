@@ -1,0 +1,65 @@
+---
+title: "Relatório de Receitas das Farmácias (2023–2025)"
+author: "Yannis Boz"
+date: today
+format: 
+  html: 
+    theme: default
+    toc: true
+    code-fold: true
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+library(targets)
+library(dplyr)
+library(ggplot2)
+library(knitr)
+```
+
+## Introdução
+
+Este relatório apresenta a análise consolidada das receitas das farmácias no período de 2023 a 2025. Os dados foram processados de forma reprodutível utilizando um pipeline construído com o pacote `targets`.
+
+## Dados Consolidados
+
+Abaixo carregamos o alvo `dados_consolidados` diretamente do pipeline executado pelo `targets`:
+
+```{r}
+#| label: carregar-dados
+ dados <- tar_read(dados_consolidados)
+```
+
+## Tabela Resumo das Receitas
+
+```{r}
+#| label: tabela-receitas
+dados |>
+  kable(
+    col.names = c("Farmácia", "Ano", "Receita Total (R$)", "Média Mensal (R$)", "Meses com Dados"),
+    digits = 2,
+    caption = "Resumo financeiro anual por farmácia"
+  )
+```
+
+## Gráfico do Faturamento Anual
+
+O gráfico a seguir compara a receita total de cada farmácia ao longo dos anos analisados:
+
+```{r}
+#| label: grafico-receitas
+#| fig.width: 8
+#| fig.height: 5
+ggplot(dados, aes(x = factor(ano), y = total_receita, fill = farmacia)) +
+  geom_col(position = "dodge") +
+  scale_y_continuous(labels = scales::number_format(big.mark = ".")) +
+labs(
+  title = "Receita Total por Farmácia e Ano",
+  x = "Ano",
+  y = "Receita Total (R$)",
+  fill = "Farmácia"
+) +
+  theme_minimal()
+```
